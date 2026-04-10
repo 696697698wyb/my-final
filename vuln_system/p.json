@@ -1,0 +1,26 @@
+{
+  "report_title": "示例安全扫描报告（测试用，共 20 条）",
+  "generated_at": "2026-04-10",
+  "findings": [
+    { "cwe_id": "CWE-79", "description": "反射型跨站脚本：输出未转义。", "severity": "high", "cve_id": "CVE-2026-00001" },
+    { "cwe": "89", "description": "SQL 拼接构造查询，存在注入面。", "severity": "critical" },
+    { "weakness": "CWE-22", "description": "文件路径由用户控制，未规范化。", "level": "high" },
+    { "ruleId": "CWE-78", "summary": "将用户输入拼入系统命令。", "severity": "high" },
+    { "cwe_id": "20", "description": "业务字段缺少类型与范围校验。", "severity": "medium" },
+    { "cweId": "352", "description": "状态变更请求未校验同步器令牌。", "severity": "medium" },
+    { "cwe_id": "CWE-434", "description": "上传接口未限制扩展名与内容类型。", "severity": "high" },
+    { "weaknesses": ["502"], "description": "反序列化来自不可信源的二进制数据。", "severity": "critical" },
+    { "cwe_id": "CWE-918", "description": "服务端根据用户 URL 发起内网请求。", "severity": "high" },
+    { "cwe": "CWE-326", "description": "使用已弃用或密钥过短的算法。", "severity": "medium" },
+    { "cwe_id": "798", "description": "仓库中存在明文账号口令。", "severity": "high" },
+    { "rule_id": "119", "text": "边界检查缺失导致缓冲区风险。", "severity": "high" },
+    { "cwe_id": "CWE-125", "description": "越界读取可能泄露相邻内存。", "severity": "medium" },
+    { "cwe": "190", "message": "算术运算未检查溢出。", "severity": "medium" },
+    { "weakness": "200", "description": "堆栈跟踪或调试信息返回给客户端。", "severity": "low" },
+    { "cwe_id": "CWE-269", "description": "默认安装赋予过高操作系统权限。", "severity": "high" },
+    { "cwe_id": "285", "description": "对象级授权未在服务端强制执行。", "severity": "high" },
+    { "ruleId": "CWE-307", "summary": "认证接口无登录尝试节流。", "severity": "medium" },
+    { "cwe_id": "CWE-601", "description": "重定向目标取自未校验的查询参数。", "severity": "medium" },
+    { "cwe_id": "CWE-400", "description": "未限制单用户可创建的会话或任务数。", "severity": "medium", "cve_id": "CVE-2026-00020" }
+  ]
+}
