@@ -37,6 +37,10 @@
             <el-icon><Search /></el-icon>
             <span>搜索漏洞</span>
           </el-menu-item>
+          <el-menu-item index="myAssigned" v-if="userStore.isEngineer">
+            <el-icon><Tickets /></el-icon>
+            <span>我的待处理</span>
+          </el-menu-item>
           <el-menu-item index="importCwe">
             <el-icon><Upload /></el-icon>
             <span>导入 CWE</span>
@@ -186,7 +190,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { useVulnerabilityStore } from '../stores/vulnerability'
-import { ArrowLeft, DataBoard, Plus, Search, Upload } from '@element-plus/icons-vue'
+import { ArrowLeft, DataBoard, Plus, Search, Tickets, Upload } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -276,6 +280,8 @@ const handleMenuSelect = (index) => {
     router.push('/dashboard')
   } else if (index === 'submit') {
     router.push('/submit')
+  } else if (index === 'myAssigned') {
+    router.push('/my-assigned')
   } else if (index === 'importCwe') {
     router.push('/import-cwe-json')
   }

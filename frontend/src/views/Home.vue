@@ -2,81 +2,88 @@
   <div class="home-page">
     <div class="home-bg" aria-hidden="true" />
 
-    <template v-if="!userStore.isLoggedIn">
-      <header class="home-header">
-        <div class="header-inner">
-          <router-link to="/" class="brand">
-            <span class="brand-mark" aria-hidden="true">
-              <el-icon :size="22"><Lock /></el-icon>
-            </span>
-            <span class="brand-text">漏洞管理系统</span>
-          </router-link>
-          <nav class="header-nav" aria-label="账户">
+    <header class="home-header">
+      <div class="header-inner">
+        <router-link to="/" class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <el-icon :size="22"><Lock /></el-icon>
+          </span>
+          <span class="brand-text">漏洞管理系统</span>
+        </router-link>
+        <nav class="header-nav" aria-label="账户">
+          <template v-if="userStore.isLoggedIn">
+            <router-link to="/dashboard" class="nav-link">进入工作台</router-link>
+            <button type="button" class="nav-btn nav-btn-ghost" @click="handleLogout">退出</button>
+          </template>
+          <template v-else>
             <router-link to="/login" class="nav-link">登录</router-link>
             <router-link to="/register" class="nav-btn">注册</router-link>
-          </nav>
+          </template>
+        </nav>
+      </div>
+    </header>
+
+    <main class="home-main">
+      <section class="hero">
+        <p class="eyebrow hero-anim d1">安全运营</p>
+        <h1 class="hero-title hero-anim d2">漏洞收录、处置与统计，在一处完成</h1>
+        <p class="hero-lead hero-anim d3">
+          支持手工上报与 JSON 导入，按角色协作推进状态，用数据看清风险分布。
+        </p>
+        <div class="hero-cta hero-anim d4">
+          <el-button
+            type="primary"
+            size="large"
+            class="btn-primary"
+            @click="userStore.isLoggedIn ? goToDashboard() : goToLogin()"
+          >
+            {{ userStore.isLoggedIn ? '进入工作台' : '立即登录' }}
+          </el-button>
+          <el-button
+            size="large"
+            class="btn-secondary"
+            @click="userStore.isLoggedIn ? handleLogout() : goToRegister()"
+          >
+            {{ userStore.isLoggedIn ? '退出登录' : '创建账户' }}
+          </el-button>
         </div>
-      </header>
+      </section>
 
-      <main class="home-main">
-        <section class="hero">
-          <p class="eyebrow hero-anim d1">安全运营</p>
-          <h1 class="hero-title hero-anim d2">漏洞收录、处置与统计，在一处完成</h1>
-          <p class="hero-lead hero-anim d3">
-            支持手工上报与 JSON 导入，按角色协作推进状态，用数据看清风险分布。
-          </p>
-          <div class="hero-cta hero-anim d4">
-            <el-button type="primary" size="large" class="btn-primary" @click="goToLogin">
-              立即登录
-            </el-button>
-            <el-button size="large" class="btn-secondary" @click="goToRegister">
-              创建账户
-            </el-button>
+      <section class="features" aria-label="能力概览">
+        <article class="feature-card card-anim c1">
+          <div class="feature-icon">
+            <el-icon :size="28"><Upload /></el-icon>
           </div>
-        </section>
+          <h2>导入与登记</h2>
+          <p>CVE记录、简表或 CWE 字段均可解析预览，确认后入库，减少手工录入。</p>
+        </article>
+        <article class="feature-card card-anim c2">
+          <div class="feature-icon">
+            <el-icon :size="28"><DataLine /></el-icon>
+          </div>
+          <h2>流程与协作</h2>
+          <p>待处理、处理中、已修复等状态清晰可筛，便于工程师与管理员分工。</p>
+        </article>
+        <article class="feature-card card-anim c3">
+          <div class="feature-icon">
+            <el-icon :size="28"><Key /></el-icon>
+          </div>
+          <h2>角色与权限</h2>
+          <p>报告员、工程师、管理员分权使用，登录后即可进入对应工作台。</p>
+        </article>
+      </section>
+    </main>
 
-        <section class="features" aria-label="能力概览">
-          <article class="feature-card card-anim c1">
-            <div class="feature-icon">
-              <el-icon :size="28"><Upload /></el-icon>
-            </div>
-            <h2>导入与登记</h2>
-            <p>CVE记录、简表或 CWE 字段均可解析预览，确认后入库，减少手工录入。</p>
-          </article>
-          <article class="feature-card card-anim c2">
-            <div class="feature-icon">
-              <el-icon :size="28"><DataLine /></el-icon>
-            </div>
-            <h2>流程与协作</h2>
-            <p>待处理、处理中、已修复等状态清晰可筛，便于工程师与管理员分工。</p>
-          </article>
-          <article class="feature-card card-anim c3">
-            <div class="feature-icon">
-              <el-icon :size="28"><Key /></el-icon>
-            </div>
-            <h2>角色与权限</h2>
-            <p>报告员、工程师、管理员分权使用，登录后即可进入对应工作台。</p>
-          </article>
-        </section>
-      </main>
-
-      <footer class="home-footer">
-        <p>企业内部使用 · 请妥善保管账号</p>
-      </footer>
-    </template>
-
-    <div v-else class="redirect-wrap">
-      <el-icon class="loading-icon" aria-hidden="true"><Loading /></el-icon>
-      <p>正在进入工作台…</p>
-    </div>
+    <footer class="home-footer">
+      <p>企业内部使用 · 请妥善保管账号</p>
+    </footer>
   </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
-import { Lock, Upload, DataLine, Key, Loading } from '@element-plus/icons-vue'
-import { onMounted, watch } from 'vue'
+import { Lock, Upload, DataLine, Key } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -89,22 +96,13 @@ const goToRegister = () => {
   router.push('/register')
 }
 
-watch(
-  () => userStore.isLoggedIn,
-  (newValue) => {
-    if (newValue) {
-      router.push('/dashboard')
-    }
-  }
-)
+const goToDashboard = () => {
+  router.push('/dashboard')
+}
 
-onMounted(() => {
-  if (userStore.isLoggedIn) {
-    setTimeout(() => {
-      router.push('/dashboard')
-    }, 1000)
-  }
-})
+const handleLogout = () => {
+  userStore.logout()
+}
 </script>
 
 <style scoped>
@@ -222,6 +220,11 @@ onMounted(() => {
 .nav-btn:hover {
   background: #a0cfff;
   transform: translateY(-1px);
+}
+
+.nav-btn-ghost {
+  border: none;
+  cursor: pointer;
 }
 
 .home-main {

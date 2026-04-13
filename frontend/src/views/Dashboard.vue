@@ -33,6 +33,10 @@
             <el-icon><Search /></el-icon>
             <span>搜索漏洞</span>
           </el-menu-item>
+          <el-menu-item index="myAssigned" v-if="userStore.isEngineer">
+            <el-icon><Tickets /></el-icon>
+            <span>我的待处理</span>
+          </el-menu-item>
           <el-menu-item index="importCwe">
             <el-icon><Upload /></el-icon>
             <span>导入 CWE</span>
@@ -122,6 +126,68 @@
             />
           </div>
         </el-card>
+
+        <el-card v-if="userStore.isAdmin" class="vuln-list completed-list">
+          <div class="list-header">
+            <h3>已完成漏洞</h3>
+          </div>
+
+          <div class="stats-grid completed-stats">
+            <el-card class="stat-card resolved-card">
+              <div class="stat-content">
+                <div class="stat-number">{{ completedSummary.resolved || 0 }}</div>
+                <div class="stat-label">已修复</div>
+              </div>
+            </el-card>
+
+            <el-card class="stat-card closed-card">
+              <div class="stat-content">
+                <div class="stat-number">{{ completedSummary.closed || 0 }}</div>
+                <div class="stat-label">已关闭</div>
+              </div>
+            </el-card>
+          </div>
+
+          <el-table :data="completedVulnerabilities" style="width: 100%" @row-click="handleRowClick" highlight-current-row>
+            <el-table-column prop="id" label="ID" width="80" />
+            <el-table-column label="CVE" width="130" show-overflow-tooltip>
+              <template #default="scope">
+                {{ scope.row.cve_id || '—' }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="description" label="描述" show-overflow-tooltip />
+            <el-table-column prop="status" label="完成状态" width="110">
+              <template #default="scope">
+                <el-tag :type="getStatusType(scope.row.status)">
+                  {{ getStatusName(scope.row.status) }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="reporter" label="提交者" width="120" />
+            <el-table-column prop="assignee" label="完成负责人" width="140">
+              <template #default="scope">
+                {{ scope.row.assignee || '未分配' }}
+              </template>
+            </el-table-column>
+            <el-table-column prop="updated_at" label="完成时间" width="180">
+              <template #default="scope">
+                {{ formatDate(scope.row.updated_at) }}
+              </template>
+            </el-table-column>
+          </el-table>
+
+          <div class="pagination">
+            <el-pagination
+              v-model:current-page="completedCurrentPage"
+              v-model:page-size="completedPageSize"
+              :total="completedTotal"
+              :page-sizes="[10, 20, 50, 100]"
+              layout="total, sizes, prev, pager, next, jumper"
+              @size-change="loadCompletedVulnerabilities"
+              @current-change="loadCompletedVulnerabilities"
+            />
+          </div>
+        </el-card>
       </div>
     </div>
   </div>
@@ -132,7 +198,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { useVulnerabilityStore } from '../stores/vulnerability'
-import { DataBoard, Plus, Search, Upload } from '@element-plus/icons-vue'
+import { DataBoard, Plus, Search, Tickets, Upload } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -151,6 +217,14 @@ const vulnerabilities = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
+const completedVulnerabilities = ref([])
+const completedCurrentPage = ref(1)
+const completedPageSize = ref(10)
+const completedTotal = ref(0)
+const completedSummary = reactive({
+  resolved: 0,
+  closed: 0
+})
 
 const getRoleName = (role) => {
   const roleMap = {
@@ -215,6 +289,8 @@ const handleMenuSelect = (index) => {
     router.push('/submit')
   } else if (index === 'search') {
     router.push('/search')
+  } else if (index === 'myAssigned') {
+    router.push('/my-assigned')
   } else if (index === 'importCwe') {
     router.push('/import-cwe-json')
   }
@@ -250,6 +326,23 @@ const loadVulnerabilities = async () => {
   }
 }
 
+const loadCompletedVulnerabilities = async () => {
+  if (!userStore.isAdmin) return
+
+  try {
+    const data = await vulnerabilityStore.getCompletedList(
+      completedCurrentPage.value,
+      completedPageSize.value
+    )
+    completedVulnerabilities.value = data.items || []
+    completedTotal.value = data.total || 0
+    completedSummary.resolved = data.summary?.resolved || 0
+    completedSummary.closed = data.summary?.closed || 0
+  } catch (error) {
+    console.error('加载已完成漏洞列表失败:', error)
+  }
+}
+
 const handleRowClick = (row) => {
   router.push(`/vulnerability/${row.id}`)
 }
@@ -263,6 +356,7 @@ const formatDate = (dateString) => {
 onMounted(() => {
   loadStats()
   loadVulnerabilities()
+  loadCompletedVulnerabilities()
 })
 </script>
 
@@ -370,6 +464,10 @@ onMounted(() => {
   margin-top: 20px;
 }
 
+.completed-list {
+  margin-top: 24px;
+}
+
 .list-header {
   margin-bottom: 15px;
 }
@@ -384,6 +482,21 @@ onMounted(() => {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+}
+
+.completed-stats {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 220px));
+  margin-bottom: 20px;
+}
+
+.resolved-card {
+  background: linear-gradient(135deg, #67c23a 0%, #95d475 100%);
+  color: white;
+}
+
+.closed-card {
+  background: linear-gradient(135deg, #909399 0%, #b1b3b8 100%);
+  color: white;
 }
 
 @media (max-width: 768px) {

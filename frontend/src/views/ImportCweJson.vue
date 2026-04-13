@@ -35,6 +35,10 @@
             <el-icon><Search /></el-icon>
             <span>搜索漏洞</span>
           </el-menu-item>
+          <el-menu-item index="myAssigned" v-if="userStore.isEngineer">
+            <el-icon><Tickets /></el-icon>
+            <span>我的待处理</span>
+          </el-menu-item>
           <el-menu-item index="importCwe">
             <el-icon><Upload /></el-icon>
             <span>导入 CWE</span>
@@ -128,7 +132,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { ArrowLeft, DataBoard, Plus, Search, Upload, UploadFilled } from '@element-plus/icons-vue'
+import { ArrowLeft, DataBoard, Plus, Search, Tickets, Upload, UploadFilled } from '@element-plus/icons-vue'
 import { useUserStore } from '../stores/user'
 import { vulnerabilityAPI } from '../api/vulnerability'
 
@@ -174,6 +178,7 @@ const handleMenuSelect = (index) => {
   if (index === 'dashboard') router.push('/dashboard')
   else if (index === 'submit') router.push('/submit')
   else if (index === 'search') router.push('/search')
+  else if (index === 'myAssigned') router.push('/my-assigned')
 }
 
 const goBack = () => router.push('/dashboard')
