@@ -57,6 +57,15 @@ const routes = [
     }
   },
   {
+    path: '/cwe/:cweId',
+    name: 'CweKnowledge',
+    component: () => import('../views/CweKnowledge.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'CWE 知识库 - 漏洞管理系统'
+    }
+  },
+  {
     path: '/search',
     name: 'Search',
     component: () => import('../views/Search.vue'),

@@ -77,6 +77,47 @@
           </el-card>
         </div>
 
+        <div class="chart-grid">
+          <el-card class="chart-card">
+            <template #header>
+              <div class="chart-header">
+                <span>漏洞类型分布</span>
+                <span class="chart-tip">按 CWE 关联统计</span>
+              </div>
+            </template>
+            <div class="chart-wrap">
+              <Pie v-if="typeChartData.labels.length" :data="typeChartData" :options="pieChartOptions" />
+              <el-empty v-else description="暂无类型分布数据" />
+            </div>
+          </el-card>
+
+          <el-card class="chart-card">
+            <template #header>
+              <div class="chart-header">
+                <span>严重性分布</span>
+                <span class="chart-tip">柱状对比</span>
+              </div>
+            </template>
+            <div class="chart-wrap">
+              <Bar v-if="severityChartData.labels.length" :data="severityChartData" :options="barChartOptions" />
+              <el-empty v-else description="暂无严重性数据" />
+            </div>
+          </el-card>
+        </div>
+
+        <el-card class="chart-card trend-card">
+          <template #header>
+            <div class="chart-header">
+              <span>时间趋势</span>
+              <span class="chart-tip">近 14 天新增漏洞</span>
+            </div>
+          </template>
+          <div class="chart-wrap trend-wrap">
+            <Line v-if="trendChartData.labels.length" :data="trendChartData" :options="lineChartOptions" />
+            <el-empty v-else description="暂无趋势数据" />
+          </div>
+        </el-card>
+
         <!-- 漏洞列表 -->
         <el-card class="vuln-list">
           <div class="list-header">
@@ -88,6 +129,19 @@
             <el-table-column label="CVE" width="130" show-overflow-tooltip>
               <template #default="scope">
                 {{ scope.row.cve_id || '—' }}
+              </template>
+            </el-table-column>
+            <el-table-column label="CWE" width="120" show-overflow-tooltip>
+              <template #default="scope">
+                <el-button
+                  v-if="scope.row.cwe_id"
+                  type="primary"
+                  link
+                  @click.stop="goToCweKnowledge(scope.row.cwe_id)"
+                >
+                  {{ scope.row.cwe_id }}
+                </el-button>
+                <span v-else>—</span>
               </template>
             </el-table-column>
             <el-table-column prop="description" label="描述" show-overflow-tooltip />
@@ -155,6 +209,19 @@
                 {{ scope.row.cve_id || '—' }}
               </template>
             </el-table-column>
+            <el-table-column label="CWE" width="120" show-overflow-tooltip>
+              <template #default="scope">
+                <el-button
+                  v-if="scope.row.cwe_id"
+                  type="primary"
+                  link
+                  @click.stop="goToCweKnowledge(scope.row.cwe_id)"
+                >
+                  {{ scope.row.cwe_id }}
+                </el-button>
+                <span v-else>—</span>
+              </template>
+            </el-table-column>
             <el-table-column prop="description" label="描述" show-overflow-tooltip />
             <el-table-column prop="status" label="完成状态" width="110">
               <template #default="scope">
@@ -194,11 +261,38 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { computed, ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Pie, Bar, Line } from 'vue-chartjs'
+import {
+  Chart as ChartJS,
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  Filler,
+  Legend,
+  LineElement,
+  LinearScale,
+  PointElement,
+  Title,
+  Tooltip
+} from 'chart.js'
 import { useUserStore } from '../stores/user'
 import { useVulnerabilityStore } from '../stores/vulnerability'
 import { DataBoard, Plus, Search, Tickets, Upload } from '@element-plus/icons-vue'
+
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Filler
+)
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -224,6 +318,11 @@ const completedTotal = ref(0)
 const completedSummary = reactive({
   resolved: 0,
   closed: 0
+})
+const analytics = reactive({
+  typeDistribution: [],
+  severityDistribution: [],
+  timeTrend: []
 })
 
 const getRoleName = (role) => {
@@ -315,12 +414,6 @@ const loadVulnerabilities = async () => {
     const data = await vulnerabilityStore.getList(currentPage.value, pageSize.value)
     vulnerabilities.value = data.items || []
     total.value = data.total || 0
-
-    // 调试：检查状态值
-    console.log('漏洞数据:', vulnerabilities.value)
-    vulnerabilities.value.forEach((vuln, index) => {
-      console.log(`漏洞 ${index}: ID=${vuln.id}, 状态=${vuln.status}, 类型=${getStatusType(vuln.status)}, 显示名称=${getStatusName(vuln.status)}`)
-    })
   } catch (error) {
     console.error('加载漏洞列表失败:', error)
   }
@@ -343,8 +436,23 @@ const loadCompletedVulnerabilities = async () => {
   }
 }
 
+const loadAnalytics = async () => {
+  try {
+    const data = await vulnerabilityStore.getAnalytics()
+    analytics.typeDistribution = data.typeDistribution || []
+    analytics.severityDistribution = data.severityDistribution || []
+    analytics.timeTrend = data.timeTrend || []
+  } catch (error) {
+    console.error('加载图表数据失败:', error)
+  }
+}
+
 const handleRowClick = (row) => {
   router.push(`/vulnerability/${row.id}`)
+}
+
+const goToCweKnowledge = (cweId) => {
+  router.push(`/cwe/${encodeURIComponent(cweId)}`)
 }
 
 const formatDate = (dateString) => {
@@ -353,8 +461,95 @@ const formatDate = (dateString) => {
   return date.toLocaleString('zh-CN')
 }
 
+const typeChartData = computed(() => ({
+  labels: analytics.typeDistribution.map(item => item.name),
+  datasets: [
+    {
+      data: analytics.typeDistribution.map(item => item.value),
+      backgroundColor: ['#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#64748b'],
+      borderWidth: 0
+    }
+  ]
+}))
+
+const severityChartData = computed(() => ({
+  labels: analytics.severityDistribution.map(item => item.label),
+  datasets: [
+    {
+      label: '漏洞数量',
+      data: analytics.severityDistribution.map(item => item.value),
+      backgroundColor: ['#dc2626', '#f97316', '#0ea5e9', '#22c55e'],
+      borderRadius: 8,
+      maxBarThickness: 44
+    }
+  ]
+}))
+
+const trendChartData = computed(() => ({
+  labels: analytics.timeTrend.map(item => item.date),
+  datasets: [
+    {
+      label: '新增漏洞',
+      data: analytics.timeTrend.map(item => item.count),
+      borderColor: '#2563eb',
+      backgroundColor: 'rgba(37, 99, 235, 0.14)',
+      fill: true,
+      tension: 0.35,
+      pointRadius: 4,
+      pointHoverRadius: 6
+    }
+  ]
+}))
+
+const pieChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'bottom'
+    }
+  }
+}
+
+const barChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false
+    }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        precision: 0
+      }
+    }
+  }
+}
+
+const lineChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false
+    }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: {
+        precision: 0
+      }
+    }
+  }
+}
+
 onMounted(() => {
   loadStats()
+  loadAnalytics()
   loadVulnerabilities()
   loadCompletedVulnerabilities()
 })
@@ -414,6 +609,41 @@ onMounted(() => {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.chart-card {
+  border-radius: 18px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.chart-tip {
+  color: #909399;
+  font-size: 12px;
+}
+
+.chart-wrap {
+  height: 320px;
+}
+
+.trend-card {
+  margin-bottom: 20px;
+}
+
+.trend-wrap {
+  height: 280px;
 }
 
 .stats-grid {
@@ -511,6 +741,10 @@ onMounted(() => {
 
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .chart-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>
