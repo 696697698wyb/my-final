@@ -49,6 +49,7 @@
               <div>
                 <p class="eyebrow">知识库条目</p>
                 <h3>{{ knowledge.cwe_id }}</h3>
+                <p class="hero-type">{{ knowledge.cwe_type }} · {{ knowledge.cwe_title }}</p>
               </div>
               <el-tag type="primary" size="large">{{ knowledge.total_related || 0 }} 条关联漏洞</el-tag>
             </div>
@@ -111,6 +112,30 @@
               <el-empty v-else description="暂无关联漏洞示例" />
             </el-card>
           </div>
+
+          <el-card class="knowledge-graph-card">
+            <template #header>知识图谱</template>
+            <div class="graph-list" v-if="knowledge.knowledge_graph?.length">
+              <div v-for="(item, index) in knowledge.knowledge_graph" :key="`${item.cve}-${index}`" class="graph-row">
+                <div class="graph-node">
+                  <span class="graph-label">CVE</span>
+                  <strong>{{ item.cve }}</strong>
+                </div>
+                <div class="graph-arrow">→</div>
+                <div class="graph-node">
+                  <span class="graph-label">CWE</span>
+                  <strong>{{ item.cwe }}</strong>
+                  <small>{{ item.cwe_type }}</small>
+                </div>
+                <div class="graph-arrow">→</div>
+                <div class="graph-node graph-node-wide">
+                  <span class="graph-label">修复方案</span>
+                  <strong>{{ item.remediation }}</strong>
+                </div>
+              </div>
+            </div>
+            <el-empty v-else description="暂无知识图谱关系" />
+          </el-card>
         </template>
       </div>
     </div>
@@ -302,6 +327,12 @@ onMounted(() => {
   color: #303133;
 }
 
+.hero-type {
+  margin: 8px 0 0;
+  color: #409eff;
+  font-size: 14px;
+}
+
 .hero-desc {
   color: #606266;
   line-height: 1.7;
@@ -337,6 +368,11 @@ onMounted(() => {
 
 .knowledge-card {
   border-radius: 18px;
+}
+
+.knowledge-graph-card {
+  border-radius: 18px;
+  margin-top: 24px;
 }
 
 .remediation-list {
@@ -383,6 +419,48 @@ onMounted(() => {
   gap: 12px;
   color: #909399;
   font-size: 12px;
+}
+
+.graph-list {
+  display: grid;
+  gap: 14px;
+}
+
+.graph-row {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.graph-node {
+  min-width: 150px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #f8fbff;
+  border: 1px solid #dbeafe;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.graph-node-wide {
+  min-width: 260px;
+  flex: 1;
+}
+
+.graph-label {
+  color: #909399;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.graph-arrow {
+  display: flex;
+  align-items: center;
+  color: #409eff;
+  font-weight: 700;
+  font-size: 20px;
 }
 
 @media (max-width: 900px) {

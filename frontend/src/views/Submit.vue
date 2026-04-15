@@ -97,10 +97,28 @@
               >
                 AI预测严重性
               </el-button>
-              <span v-if="aiResult" class="ai-result">
-                预测结果: <el-tag :type="getSeverityType(aiResult)">{{ getSeverityName(aiResult) }}</el-tag>
+              <span v-if="aiResult.severity" class="ai-result">
+                预测结果: <el-tag :type="getSeverityType(aiResult.severity)">{{ getSeverityName(aiResult.severity) }}</el-tag>
               </span>
             </el-form-item>
+
+            <el-alert
+              v-if="aiResult.cweType"
+              class="ai-suggestion"
+              type="success"
+              show-icon
+              :closable="false"
+            >
+              <template #title>
+                推荐 CWE：{{ aiResult.recommendedCwe }} · {{ aiResult.cweType }}
+              </template>
+              <div class="ai-suggestion-body">
+                <p>{{ aiResult.cweTitle }}</p>
+                <ul v-if="aiResult.remediation?.length" class="ai-remediation-list">
+                  <li v-for="(item, index) in aiResult.remediation" :key="index">{{ item }}</li>
+                </ul>
+              </div>
+            </el-alert>
 
             <el-form-item label="严重性" prop="severity">
               <el-select
@@ -153,7 +171,13 @@ const aiLoading = ref(false)
 const submitting = ref(false)
 const message = ref('')
 const messageType = ref('')
-const aiResult = ref('')
+const aiResult = ref({
+  severity: '',
+  recommendedCwe: '',
+  cweType: '',
+  cweTitle: '',
+  remediation: []
+})
 
 const vulnerabilityForm = reactive({
   cve_id: '',
@@ -232,8 +256,17 @@ const handleAIPredict = async () => {
   try {
     const result = await vulnerabilityStore.predictSeverity(vulnerabilityForm.description)
     if (result.success) {
-      aiResult.value = result.severity
+      aiResult.value = {
+        severity: result.severity,
+        recommendedCwe: result.recommendedCwe || '',
+        cweType: result.cweType || '',
+        cweTitle: result.cweTitle || '',
+        remediation: result.remediation || []
+      }
       vulnerabilityForm.severity = result.severity
+      if (!vulnerabilityForm.cwe_id && result.recommendedCwe) {
+        vulnerabilityForm.cwe_id = result.recommendedCwe
+      }
       showMessage('AI预测完成', 'success')
     } else {
       showMessage(result.message || 'AI预测失败', 'error')
@@ -262,11 +295,17 @@ const handleSubmit = async () => {
         if (result.success) {
           showMessage('漏洞提交成功', 'success')
           // 清空表单
-      vulnerabilityForm.cve_id = ''
-      vulnerabilityForm.cwe_id = ''
-      vulnerabilityForm.description = ''
-      vulnerabilityForm.severity = ''
-          aiResult.value = ''
+          vulnerabilityForm.cve_id = ''
+          vulnerabilityForm.cwe_id = ''
+          vulnerabilityForm.description = ''
+          vulnerabilityForm.severity = ''
+          aiResult.value = {
+            severity: '',
+            recommendedCwe: '',
+            cweType: '',
+            cweTitle: '',
+            remediation: []
+          }
         } else {
           showMessage(result.message || '提交失败', 'error')
         }
@@ -385,6 +424,21 @@ const showMessage = (text, type = 'info') => {
   margin-left: 15px;
   font-size: 14px;
   color: #606266;
+}
+
+.ai-suggestion {
+  margin-bottom: 20px;
+}
+
+.ai-suggestion-body p {
+  margin: 0 0 8px;
+}
+
+.ai-remediation-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #606266;
+  line-height: 1.7;
 }
 
 .form-message {

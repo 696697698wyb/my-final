@@ -102,6 +102,7 @@
                 {{ scope.row.cwe_id || '—' }}
               </template>
             </el-table-column>
+            <el-table-column prop="cwe_type" label="CWE类型" width="130" show-overflow-tooltip />
             <el-table-column prop="description" label="描述" show-overflow-tooltip />
             <el-table-column prop="severity" label="严重性" width="100">
               <template #default="scope">

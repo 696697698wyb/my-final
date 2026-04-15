@@ -86,7 +86,7 @@
             <template #header>
               <div class="chart-header">
                 <span>漏洞类型分布</span>
-                <span class="chart-tip">按 CWE 关联统计</span>
+                <span class="chart-tip">按 CWE 类型统计</span>
               </div>
             </template>
             <div class="chart-wrap">
@@ -148,6 +148,7 @@
                 <span v-else>—</span>
               </template>
             </el-table-column>
+            <el-table-column prop="cwe_type" label="CWE类型" width="130" show-overflow-tooltip />
             <el-table-column prop="description" label="描述" show-overflow-tooltip />
             <el-table-column prop="severity" label="严重性" width="100">
               <template #default="scope">
@@ -226,6 +227,7 @@
                 <span v-else>—</span>
               </template>
             </el-table-column>
+            <el-table-column prop="cwe_type" label="CWE类型" width="130" show-overflow-tooltip />
             <el-table-column prop="description" label="描述" show-overflow-tooltip />
             <el-table-column prop="status" label="完成状态" width="110">
               <template #default="scope">
