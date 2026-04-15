@@ -66,6 +66,15 @@ const routes = [
     }
   },
   {
+    path: '/cwe-types',
+    name: 'CweTypeCatalog',
+    component: () => import('../views/CweTypeCatalog.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'CWE 类型总览 - 漏洞管理系统'
+    }
+  },
+  {
     path: '/search',
     name: 'Search',
     component: () => import('../views/Search.vue'),

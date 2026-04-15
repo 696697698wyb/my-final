@@ -25,6 +25,10 @@
             <el-icon><DataBoard /></el-icon>
             <span>仪表板</span>
           </el-menu-item>
+          <el-menu-item index="cweTypes">
+            <el-icon><CollectionTag /></el-icon>
+            <span>CWE 类型</span>
+          </el-menu-item>
           <el-menu-item index="unassigned" v-if="userStore.isAdmin">
             <el-icon><Files /></el-icon>
             <span>待分配任务</span>
@@ -285,7 +289,7 @@ import {
 } from 'chart.js'
 import { useUserStore } from '../stores/user'
 import { useVulnerabilityStore } from '../stores/vulnerability'
-import { DataBoard, Files, Plus, Search, Tickets, Upload } from '@element-plus/icons-vue'
+import { CollectionTag, DataBoard, Files, Plus, Search, Tickets, Upload } from '@element-plus/icons-vue'
 
 ChartJS.register(
   Title,
@@ -392,6 +396,8 @@ const handleMenuSelect = (index) => {
   activeMenu.value = index
   if (index === 'submit') {
     router.push('/submit')
+  } else if (index === 'cweTypes') {
+    router.push('/cwe-types')
   } else if (index === 'unassigned') {
     router.push('/unassigned')
   } else if (index === 'search') {

@@ -6,7 +6,7 @@
       "cwe_id": "CWE-79",
       "cwe_type": "XSS类",
       "cwe_title": "跨站脚本",
-      "description": "反射型跨站脚本：输出未转义。",
+      "description": "Reflected cross-site scripting caused by unescaped output in the response.",
       "severity": "high",
       "cve_id": "CVE-2026-00001",
       "remediation": ["按上下文转义输出", "增加富文本白名单", "启用 CSP"]
@@ -15,7 +15,7 @@
       "cwe_id": "CWE-89",
       "cwe_type": "SQL注入类",
       "cwe_title": "SQL 注入",
-      "description": "SQL 拼接构造查询，存在注入面。",
+      "description": "SQL statements are built through string concatenation, creating an injection surface.",
       "severity": "critical",
       "cve_id": "CVE-2026-00002",
       "remediation": ["改用参数化查询", "限制数据库账号权限", "记录异常查询日志"]
@@ -24,7 +24,7 @@
       "cwe_id": "CWE-22",
       "cwe_type": "路径遍历类",
       "cwe_title": "路径遍历",
-      "description": "文件路径由用户控制，未规范化。",
+      "description": "The file path is user-controlled and is not normalized before access.",
       "severity": "high",
       "cve_id": "CVE-2026-00003",
       "remediation": ["限制访问根目录", "对路径做规范化", "改为白名单资源标识"]
@@ -33,7 +33,7 @@
       "cwe_id": "CWE-78",
       "cwe_type": "命令注入类",
       "cwe_title": "操作系统命令注入",
-      "description": "将用户输入拼入系统命令。",
+      "description": "User input is concatenated into an operating system command before execution.",
       "severity": "high",
       "cve_id": "CVE-2026-00004",
       "remediation": ["不要拼接 shell 命令", "改用安全 API", "对参数做白名单校验"]
@@ -42,7 +42,7 @@
       "cwe_id": "CWE-20",
       "cwe_type": "输入校验类",
       "cwe_title": "输入验证错误",
-      "description": "业务字段缺少类型与范围校验。",
+      "description": "Business input fields are missing type validation and range checks.",
       "severity": "medium",
       "cve_id": "CVE-2026-00005",
       "remediation": ["增加类型校验", "增加范围校验", "统一校验中间层"]
@@ -51,7 +51,7 @@
       "cwe_id": "CWE-352",
       "cwe_type": "请求伪造类",
       "cwe_title": "跨站请求伪造",
-      "description": "状态变更请求未校验同步器令牌。",
+      "description": "State-changing requests do not validate a synchronizer token.",
       "severity": "medium",
       "cve_id": "CVE-2026-00006",
       "remediation": ["增加 CSRF Token", "校验 Referer/Origin", "敏感操作二次确认"]
@@ -60,7 +60,7 @@
       "cwe_id": "CWE-434",
       "cwe_type": "文件上传类",
       "cwe_title": "不安全文件上传",
-      "description": "上传接口未限制扩展名与内容类型。",
+      "description": "The upload endpoint does not restrict file extensions or content types.",
       "severity": "high",
       "cve_id": "CVE-2026-00007",
       "remediation": ["限制扩展名", "校验 MIME 类型", "隔离上传目录"]
@@ -69,7 +69,7 @@
       "cwe_id": "CWE-502",
       "cwe_type": "反序列化类",
       "cwe_title": "不安全反序列化",
-      "description": "反序列化来自不可信源的二进制数据。",
+      "description": "Binary data from an untrusted source is deserialized without proper validation.",
       "severity": "critical",
       "cve_id": "CVE-2026-00008",
       "remediation": ["避免反序列化不可信数据", "使用安全格式", "加签校验输入"]
@@ -78,7 +78,7 @@
       "cwe_id": "CWE-918",
       "cwe_type": "SSRF类",
       "cwe_title": "服务端请求伪造",
-      "description": "服务端根据用户 URL 发起内网请求。",
+      "description": "The server issues internal network requests based on a user-supplied URL.",
       "severity": "high",
       "cve_id": "CVE-2026-00009",
       "remediation": ["限制目标域名", "阻断内网地址访问", "增加请求审计"]
@@ -87,7 +87,7 @@
       "cwe_id": "CWE-326",
       "cwe_type": "密码学配置类",
       "cwe_title": "弱加密算法",
-      "description": "使用已弃用或密钥过短的算法。",
+      "description": "The system uses deprecated cryptographic algorithms or keys that are too short.",
       "severity": "medium",
       "cve_id": "CVE-2026-00010",
       "remediation": ["升级到现代算法", "提高密钥长度", "轮换旧凭据"]
@@ -96,7 +96,7 @@
       "cwe_id": "CWE-798",
       "cwe_type": "凭据泄露类",
       "cwe_title": "硬编码凭据",
-      "description": "仓库中存在明文账号口令。",
+      "description": "Plaintext account credentials are stored in the source repository.",
       "severity": "high",
       "cve_id": "CVE-2026-00011",
       "remediation": ["移除硬编码凭据", "接入密钥管理系统", "轮换已泄露密码"]
@@ -105,7 +105,7 @@
       "cwe_id": "CWE-119",
       "cwe_type": "内存安全类",
       "cwe_title": "缓冲区边界错误",
-      "description": "边界检查缺失导致缓冲区风险。",
+      "description": "Missing boundary checks introduce a buffer handling risk.",
       "severity": "high",
       "cve_id": "CVE-2026-00012",
       "remediation": ["增加长度检查", "使用安全库函数", "补充边界测试"]
@@ -114,7 +114,7 @@
       "cwe_id": "CWE-125",
       "cwe_type": "内存安全类",
       "cwe_title": "越界读取",
-      "description": "越界读取可能泄露相邻内存。",
+      "description": "An out-of-bounds read may disclose adjacent memory contents.",
       "severity": "medium",
       "cve_id": "CVE-2026-00013",
       "remediation": ["修复索引边界", "加入地址消毒检测", "增加回归测试"]
@@ -123,7 +123,7 @@
       "cwe_id": "CWE-190",
       "cwe_type": "整数溢出类",
       "cwe_title": "整数溢出",
-      "description": "算术运算未检查溢出。",
+      "description": "Arithmetic operations do not verify whether an integer overflow occurs.",
       "severity": "medium",
       "cve_id": "CVE-2026-00014",
       "remediation": ["改用安全数值库", "增加上下限判断", "对关键路径做 fuzz"]
@@ -132,7 +132,7 @@
       "cwe_id": "CWE-200",
       "cwe_type": "信息泄露类",
       "cwe_title": "信息泄露",
-      "description": "堆栈跟踪或调试信息返回给客户端。",
+      "description": "Stack traces or debugging details are returned directly to the client.",
       "severity": "low",
       "cve_id": "CVE-2026-00015",
       "remediation": ["关闭调试模式", "统一错误页", "过滤敏感响应字段"]
@@ -141,7 +141,7 @@
       "cwe_id": "CWE-269",
       "cwe_type": "权限控制类",
       "cwe_title": "权限管理错误",
-      "description": "默认安装赋予过高操作系统权限。",
+      "description": "The default installation grants excessive operating system privileges.",
       "severity": "high",
       "cve_id": "CVE-2026-00016",
       "remediation": ["降低默认权限", "最小权限部署", "对敏感操作加审批"]
@@ -150,7 +150,7 @@
       "cwe_id": "CWE-285",
       "cwe_type": "权限控制类",
       "cwe_title": "授权缺失",
-      "description": "对象级授权未在服务端强制执行。",
+      "description": "Object-level authorization is not enforced on the server side.",
       "severity": "high",
       "cve_id": "CVE-2026-00017",
       "remediation": ["服务端强制鉴权", "增加资源级权限控制", "记录越权访问日志"]
@@ -159,7 +159,7 @@
       "cwe_id": "CWE-307",
       "cwe_type": "暴力破解类",
       "cwe_title": "缺少登录节流",
-      "description": "认证接口无登录尝试节流。",
+      "description": "The authentication endpoint lacks throttling for repeated login attempts.",
       "severity": "medium",
       "cve_id": "CVE-2026-00018",
       "remediation": ["增加限流", "失败锁定账号", "增加验证码或风控"]
@@ -168,7 +168,7 @@
       "cwe_id": "CWE-601",
       "cwe_type": "跳转控制类",
       "cwe_title": "开放重定向",
-      "description": "重定向目标取自未校验的查询参数。",
+      "description": "The redirect target is taken from an unvalidated query parameter.",
       "severity": "medium",
       "cve_id": "CVE-2026-00019",
       "remediation": ["限制跳转白名单", "不要直接使用用户输入 URL", "对外部跳转增加提示"]
@@ -177,7 +177,7 @@
       "cwe_id": "CWE-400",
       "cwe_type": "资源耗尽类",
       "cwe_title": "资源耗尽",
-      "description": "未限制单用户可创建的会话或任务数。",
+      "description": "There is no limit on the number of sessions or tasks a single user can create.",
       "severity": "medium",
       "cve_id": "CVE-2026-00020",
       "remediation": ["限制配额", "增加频率控制", "回收长期闲置资源"]

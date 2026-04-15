@@ -23,6 +23,10 @@
             <el-icon><DataBoard /></el-icon>
             <span>仪表板</span>
           </el-menu-item>
+          <el-menu-item index="cweTypes">
+            <el-icon><CollectionTag /></el-icon>
+            <span>CWE 类型</span>
+          </el-menu-item>
           <el-menu-item index="submit">
             <el-icon><Plus /></el-icon>
             <span>提交漏洞</span>
@@ -79,6 +83,7 @@
           <div class="knowledge-grid">
             <el-card class="knowledge-card">
               <template #header>修复方式</template>
+              <p class="remediation-title" v-if="knowledge.remediation_title">{{ knowledge.remediation_title }}</p>
               <ol class="remediation-list">
                 <li v-for="(item, index) in knowledge.remediation || []" :key="index">
                   {{ item }}
@@ -114,6 +119,33 @@
           </div>
 
           <el-card class="knowledge-graph-card">
+            <template #header>关联漏洞</template>
+            <div v-if="knowledge.related_vulnerabilities?.length" class="related-list">
+              <div
+                v-for="item in knowledge.related_vulnerabilities"
+                :key="`related-${item.id}`"
+                class="related-item"
+                @click="goToVulnerability(item.id)"
+              >
+                <div class="related-top">
+                  <strong>#{{ item.id }}</strong>
+                  <el-tag :type="getSeverityType(item.severity)" size="small">
+                    {{ getSeverityName(item.severity) }}
+                  </el-tag>
+                </div>
+                <p>{{ item.description }}</p>
+                <div class="related-meta">
+                  <span>{{ item.cve_id || '无 CVE' }}</span>
+                  <span>{{ item.cwe_id }}</span>
+                  <span>{{ item.cwe_type }}</span>
+                  <span>{{ formatDate(item.updated_at) }}</span>
+                </div>
+              </div>
+            </div>
+            <el-empty v-else description="暂无同类型关联漏洞" />
+          </el-card>
+
+          <el-card class="knowledge-graph-card">
             <template #header>知识图谱</template>
             <div class="graph-list" v-if="knowledge.knowledge_graph?.length">
               <div v-for="(item, index) in knowledge.knowledge_graph" :key="`${item.cve}-${index}`" class="graph-row">
@@ -146,7 +178,7 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { ArrowLeft, DataBoard, Plus, Search, Tickets, Upload } from '@element-plus/icons-vue'
+import { ArrowLeft, CollectionTag, DataBoard, Plus, Search, Tickets, Upload } from '@element-plus/icons-vue'
 import { useUserStore } from '../stores/user'
 import { useVulnerabilityStore } from '../stores/vulnerability'
 
@@ -199,6 +231,7 @@ const formatDate = (dateString) => {
 
 const handleMenuSelect = (index) => {
   if (index === 'dashboard') router.push('/dashboard')
+  else if (index === 'cweTypes') router.push('/cwe-types')
   else if (index === 'submit') router.push('/submit')
   else if (index === 'search') router.push('/search')
   else if (index === 'myAssigned') router.push('/my-assigned')
@@ -380,6 +413,12 @@ onMounted(() => {
   padding-left: 18px;
   color: #606266;
   line-height: 1.8;
+}
+
+.remediation-title {
+  margin: 0 0 12px;
+  font-weight: 600;
+  color: #303133;
 }
 
 .related-list {

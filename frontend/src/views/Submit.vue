@@ -113,6 +113,7 @@
                 推荐 CWE：{{ aiResult.recommendedCwe }} · {{ aiResult.cweType }}
               </template>
               <div class="ai-suggestion-body">
+                <p v-if="aiResult.remediationTitle" class="ai-remediation-title">{{ aiResult.remediationTitle }}</p>
                 <p>{{ aiResult.cweTitle }}</p>
                 <ul v-if="aiResult.remediation?.length" class="ai-remediation-list">
                   <li v-for="(item, index) in aiResult.remediation" :key="index">{{ item }}</li>
@@ -176,6 +177,7 @@ const aiResult = ref({
   recommendedCwe: '',
   cweType: '',
   cweTitle: '',
+  remediationTitle: '',
   remediation: []
 })
 
@@ -261,6 +263,7 @@ const handleAIPredict = async () => {
         recommendedCwe: result.recommendedCwe || '',
         cweType: result.cweType || '',
         cweTitle: result.cweTitle || '',
+        remediationTitle: result.remediationTitle || '',
         remediation: result.remediation || []
       }
       vulnerabilityForm.severity = result.severity
@@ -304,6 +307,7 @@ const handleSubmit = async () => {
             recommendedCwe: '',
             cweType: '',
             cweTitle: '',
+            remediationTitle: '',
             remediation: []
           }
         } else {
@@ -432,6 +436,11 @@ const showMessage = (text, type = 'info') => {
 
 .ai-suggestion-body p {
   margin: 0 0 8px;
+}
+
+.ai-remediation-title {
+  font-weight: 600;
+  color: #303133;
 }
 
 .ai-remediation-list {
