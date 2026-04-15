@@ -46,32 +46,61 @@
         <div class="page-header">
           <div>
             <h3>全部 CWE 类型</h3>
-            <p>共 {{ total }} 类。点击任意类型进入对应知识库详情。</p>
+            <p>共 {{ total }} 类，当前显示 {{ filteredCatalog.length }} 类。点击任意类型或代表 CWE 进入对应知识库详情。</p>
           </div>
         </div>
 
+        <el-card class="filter-panel">
+          <el-input
+            v-model="searchKeyword"
+            clearable
+            placeholder="按 CWE 类型、标题或 CWE ID 搜索"
+          />
+        </el-card>
+
         <div class="catalog-grid">
           <el-card
-            v-for="item in catalog"
+            v-for="item in filteredCatalog"
             :key="item.cwe_type"
             class="catalog-card"
-            @click="goToKnowledge(item.representative_cwe)"
           >
             <div class="card-top">
               <span class="type-pill">{{ item.cwe_type }}</span>
               <span class="count-pill">{{ item.count }} 条关联漏洞</span>
             </div>
             <h4>{{ item.title }}</h4>
-            <p class="rep-cwe">代表 CWE：{{ item.representative_cwe }}</p>
+            <p class="rep-cwe">
+              代表 CWE：
+              <span class="link-text" @click.stop="goToKnowledge(item.representative_cwe)">
+                {{ item.representative_cwe }}
+              </span>
+            </p>
             <div class="cwe-list">
               <el-tag
                 v-for="cwe in item.cwes.slice(0, 5)"
                 :key="cwe.cwe_id"
                 size="small"
                 class="cwe-tag"
+                @click.stop="goToKnowledge(cwe.cwe_id)"
               >
                 {{ cwe.cwe_id }}
               </el-tag>
+            </div>
+            <div class="sample-section" v-if="item.sample_vulnerabilities?.length">
+              <p class="sample-title">代表漏洞样本</p>
+              <div
+                v-for="sample in item.sample_vulnerabilities"
+                :key="sample.id"
+                class="sample-item"
+                @click="goToVulnerability(sample.id)"
+              >
+                <div class="sample-meta">
+                  <span>#{{ sample.id }}</span>
+                  <span>{{ sample.cwe_id }}</span>
+                  <span>{{ sample.severity || 'unknown' }}</span>
+                </div>
+                <p>{{ sample.description }}</p>
+              </div>
             </div>
           </el-card>
         </div>
@@ -81,7 +110,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { CollectionTag, DataBoard, Plus, Search, Tickets, Upload } from '@element-plus/icons-vue'
 import { useUserStore } from '../stores/user'
@@ -95,6 +124,21 @@ const activeMenu = ref('cweTypes')
 const loading = ref(false)
 const catalog = ref([])
 const total = ref(0)
+const searchKeyword = ref('')
+
+const filteredCatalog = computed(() => {
+  const keyword = searchKeyword.value.trim().toLowerCase()
+  if (!keyword) {
+    return catalog.value
+  }
+  return catalog.value.filter((item) => {
+    const cweMatches = (item.cwes || []).some((cwe) => cwe.cwe_id.toLowerCase().includes(keyword))
+    return item.cwe_type.toLowerCase().includes(keyword)
+      || item.title.toLowerCase().includes(keyword)
+      || item.representative_cwe.toLowerCase().includes(keyword)
+      || cweMatches
+  })
+})
 
 const getRoleName = (role) => {
   const roleMap = { reporter: '报告员', engineer: '工程师', manager: '管理员' }
@@ -117,6 +161,10 @@ const handleLogout = () => {
 
 const goToKnowledge = (cweId) => {
   router.push(`/cwe/${encodeURIComponent(cweId)}`)
+}
+
+const goToVulnerability = (id) => {
+  router.push(`/vulnerability/${id}`)
 }
 
 const loadCatalog = async () => {
@@ -202,6 +250,10 @@ onMounted(() => {
   color: #909399;
 }
 
+.filter-panel {
+  margin-bottom: 20px;
+}
+
 .catalog-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -254,6 +306,11 @@ onMounted(() => {
   color: #606266;
 }
 
+.link-text {
+  color: #2563eb;
+  cursor: pointer;
+}
+
 .cwe-list {
   display: flex;
   gap: 8px;
@@ -262,6 +319,43 @@ onMounted(() => {
 
 .cwe-tag {
   margin-right: 0;
+  cursor: pointer;
+}
+
+.sample-section {
+  margin-top: 18px;
+  border-top: 1px solid #ebeef5;
+  padding-top: 14px;
+}
+
+.sample-title {
+  margin: 0 0 10px;
+  color: #606266;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sample-item {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.sample-item p {
+  margin: 6px 0 0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.sample-meta {
+  display: flex;
+  gap: 10px;
+  color: #64748b;
+  font-size: 12px;
+  flex-wrap: wrap;
 }
 
 @media (max-width: 768px) {

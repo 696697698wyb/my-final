@@ -139,6 +139,11 @@
                 {{ scope.row.cve_id || '—' }}
               </template>
             </el-table-column>
+            <el-table-column prop="cwe_type" label="CWE类型" width="150">
+              <template #default="scope">
+                {{ scope.row.cwe_type || '未关联' }}
+              </template>
+            </el-table-column>
             <el-table-column prop="description" label="描述" show-overflow-tooltip />
             <el-table-column prop="severity" label="严重性" width="100">
               <template #default="scope">
@@ -342,12 +347,13 @@ const exportResults = () => {
   // 简单的CSV导出功能
   if (!searchResults.value.length) return
 
-  const headers = ['ID', 'CVE ID', '描述', '严重性', '状态', '报告者', '提交时间']
+  const headers = ['ID', 'CVE ID', 'CWE类型', '描述', '严重性', '状态', '报告者', '提交时间']
   const csvContent = [
     headers.join(','),
     ...searchResults.value.map(item => [
       item.id,
       item.cve_id || '',
+      `"${(item.cwe_type || '未关联').replace(/"/g, '""')}"`,
       `"${item.description.replace(/"/g, '""')}"`, // 处理引号
       getSeverityName(item.severity),
       getStatusName(item.status),
