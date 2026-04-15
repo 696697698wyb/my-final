@@ -72,7 +72,10 @@
               <h3>分配给我的漏洞</h3>
               <p class="list-subtitle">仅展示当前分配给你且仍需处理的漏洞</p>
             </div>
-            <el-button @click="loadAssignedVulnerabilities">刷新</el-button>
+            <div class="list-actions">
+              <el-button @click="exportTasks" :disabled="!vulnerabilities.length">导出我的任务</el-button>
+              <el-button @click="loadAssignedVulnerabilities">刷新</el-button>
+            </div>
           </div>
 
           <el-empty
@@ -272,6 +275,38 @@ const loadAssignedVulnerabilities = async () => {
   }
 }
 
+const exportTasks = () => {
+  if (!vulnerabilities.value.length) {
+    ElMessage.warning('当前没有可导出的任务')
+    return
+  }
+
+  const headers = ['ID', 'CVE', 'CWE', '描述', '严重性', '状态', '报告者', '最近更新']
+  const rows = vulnerabilities.value.map((item) => ([
+    item.id,
+    item.cve_id || '',
+    item.cwe_id || '',
+    `"${String(item.description || '').replace(/"/g, '""')}"`,
+    getSeverityName(item.severity),
+    getStatusName(item.status),
+    item.reporter || '',
+    formatDate(item.updated_at)
+  ].join(',')))
+
+  const csvContent = [headers.join(','), ...rows].join('\n')
+  const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(blob)
+  link.setAttribute('href', url)
+  link.setAttribute('download', `${userStore.userInfo.username}_tasks_${new Date().toISOString().slice(0, 10)}.csv`)
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+  ElMessage.success('任务导出成功')
+}
+
 onMounted(() => {
   loadAssignedVulnerabilities()
 })
@@ -388,6 +423,11 @@ onMounted(() => {
   font-size: 13px;
 }
 
+.list-actions {
+  display: flex;
+  gap: 12px;
+}
+
 .pagination {
   margin-top: 20px;
   display: flex;
@@ -410,6 +450,11 @@ onMounted(() => {
   .list-header {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .list-actions {
+    width: 100%;
+    flex-direction: column;
   }
 }
 </style>

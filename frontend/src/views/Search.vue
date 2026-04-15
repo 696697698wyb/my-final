@@ -139,11 +139,6 @@
                 {{ scope.row.cve_id || '—' }}
               </template>
             </el-table-column>
-            <el-table-column label="CWE" width="110" show-overflow-tooltip>
-              <template #default="scope">
-                {{ scope.row.cwe_id || '—' }}
-              </template>
-            </el-table-column>
             <el-table-column prop="description" label="描述" show-overflow-tooltip />
             <el-table-column prop="severity" label="严重性" width="100">
               <template #default="scope">

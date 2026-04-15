@@ -84,6 +84,15 @@ const routes = [
     }
   },
   {
+    path: '/unassigned',
+    name: 'UnassignedTasks',
+    component: () => import('../views/UnassignedTasks.vue'),
+    meta: {
+      requiresAuth: true,
+      title: '待分配任务 - 漏洞管理系统'
+    }
+  },
+  {
     path: '/import-cwe-json',
     name: 'ImportCweJson',
     component: () => import('../views/ImportCweJson.vue'),

@@ -70,6 +70,14 @@
               />
             </el-form-item>
 
+            <el-form-item label="CWE ID" prop="cwe_id">
+              <el-input
+                v-model="vulnerabilityForm.cwe_id"
+                placeholder="可选，如: CWE-79"
+                clearable
+              />
+            </el-form-item>
+
             <el-form-item label="漏洞描述" prop="description">
               <el-input
                 v-model="vulnerabilityForm.description"
@@ -149,6 +157,7 @@ const aiResult = ref('')
 
 const vulnerabilityForm = reactive({
   cve_id: '',
+  cwe_id: '',
   description: '',
   severity: ''
 })
@@ -253,9 +262,10 @@ const handleSubmit = async () => {
         if (result.success) {
           showMessage('漏洞提交成功', 'success')
           // 清空表单
-          vulnerabilityForm.cve_id = ''
-          vulnerabilityForm.description = ''
-          vulnerabilityForm.severity = ''
+      vulnerabilityForm.cve_id = ''
+      vulnerabilityForm.cwe_id = ''
+      vulnerabilityForm.description = ''
+      vulnerabilityForm.severity = ''
           aiResult.value = ''
         } else {
           showMessage(result.message || '提交失败', 'error')

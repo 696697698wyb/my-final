@@ -25,6 +25,10 @@
             <el-icon><DataBoard /></el-icon>
             <span>仪表板</span>
           </el-menu-item>
+          <el-menu-item index="unassigned" v-if="userStore.isAdmin">
+            <el-icon><Files /></el-icon>
+            <span>待分配任务</span>
+          </el-menu-item>
           <el-menu-item index="submit">
             <el-icon><Plus /></el-icon>
             <span>提交漏洞</span>
@@ -279,7 +283,7 @@ import {
 } from 'chart.js'
 import { useUserStore } from '../stores/user'
 import { useVulnerabilityStore } from '../stores/vulnerability'
-import { DataBoard, Plus, Search, Tickets, Upload } from '@element-plus/icons-vue'
+import { DataBoard, Files, Plus, Search, Tickets, Upload } from '@element-plus/icons-vue'
 
 ChartJS.register(
   Title,
@@ -386,6 +390,8 @@ const handleMenuSelect = (index) => {
   activeMenu.value = index
   if (index === 'submit') {
     router.push('/submit')
+  } else if (index === 'unassigned') {
+    router.push('/unassigned')
   } else if (index === 'search') {
     router.push('/search')
   } else if (index === 'myAssigned') {
