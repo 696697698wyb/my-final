@@ -45,6 +45,10 @@
             <el-icon><Tickets /></el-icon>
             <span>我的待处理</span>
           </el-menu-item>
+          <el-menu-item index="myReturned" v-if="userStore.isEngineer">
+            <el-icon><RefreshLeft /></el-icon>
+            <span>已退回任务</span>
+          </el-menu-item>
           <el-menu-item index="importCwe">
             <el-icon><Upload /></el-icon>
             <span>导入 CWE</span>
@@ -289,7 +293,7 @@ import {
 } from 'chart.js'
 import { useUserStore } from '../stores/user'
 import { useVulnerabilityStore } from '../stores/vulnerability'
-import { CollectionTag, DataBoard, Files, Plus, Search, Tickets, Upload } from '@element-plus/icons-vue'
+import { CollectionTag, DataBoard, Files, Plus, RefreshLeft, Search, Tickets, Upload } from '@element-plus/icons-vue'
 
 ChartJS.register(
   Title,
@@ -376,6 +380,7 @@ const getStatusName = (status) => {
   const statusMap = {
     'pending': '待处理',
     'processing': '处理中',
+    'returned': '已退回',
     'resolved': '已修复',
     'closed': '已关闭'
   }
@@ -386,6 +391,7 @@ const getStatusType = (status) => {
   const typeMap = {
     'pending': 'info',
     'processing': 'warning',
+    'returned': 'danger',
     'resolved': 'success',
     'closed': 'info'
   }
@@ -404,6 +410,8 @@ const handleMenuSelect = (index) => {
     router.push('/search')
   } else if (index === 'myAssigned') {
     router.push('/my-assigned')
+  } else if (index === 'myReturned') {
+    router.push('/my-returned')
   } else if (index === 'importCwe') {
     router.push('/import-cwe-json')
   }
@@ -475,12 +483,21 @@ const formatDate = (dateString) => {
   return date.toLocaleString('zh-CN')
 }
 
+const typeColorPalette = [
+  '#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#64748b',
+  '#ec4899', '#84cc16', '#f97316', '#06b6d4', '#a855f7', '#e11d48', '#10b981',
+  '#3b82f6', '#f43f5e', '#65a30d', '#7c3aed', '#0891b2', '#ca8a04', '#dc2626',
+  '#059669', '#2563eb', '#d946ef', '#0f766e', '#b45309', '#4f46e5', '#be123c'
+]
+
 const typeChartData = computed(() => ({
   labels: analytics.typeDistribution.map(item => item.name),
   datasets: [
     {
       data: analytics.typeDistribution.map(item => item.value),
-      backgroundColor: ['#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#64748b'],
+      backgroundColor: analytics.typeDistribution.map((_, index) => (
+        typeColorPalette[index % typeColorPalette.length]
+      )),
       borderWidth: 0
     }
   ]

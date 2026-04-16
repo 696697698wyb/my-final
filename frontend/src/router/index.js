@@ -93,6 +93,15 @@ const routes = [
     }
   },
   {
+    path: '/my-returned',
+    name: 'MyReturned',
+    component: () => import('../views/ReturnedTasks.vue'),
+    meta: {
+      requiresAuth: true,
+      title: '我的已退回任务 - 漏洞管理系统'
+    }
+  },
+  {
     path: '/unassigned',
     name: 'UnassignedTasks',
     component: () => import('../views/UnassignedTasks.vue'),

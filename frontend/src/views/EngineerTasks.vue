@@ -35,6 +35,10 @@
             <el-icon><Tickets /></el-icon>
             <span>我的待处理</span>
           </el-menu-item>
+          <el-menu-item index="myReturned" v-if="userStore.isEngineer">
+            <el-icon><RefreshLeft /></el-icon>
+            <span>已退回任务</span>
+          </el-menu-item>
           <el-menu-item index="importCwe">
             <el-icon><Upload /></el-icon>
             <span>导入 CWE</span>
@@ -147,7 +151,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { DataBoard, Plus, Search, Tickets, Upload } from '@element-plus/icons-vue'
+import { DataBoard, Plus, RefreshLeft, Search, Tickets, Upload } from '@element-plus/icons-vue'
 import { useUserStore } from '../stores/user'
 import { useVulnerabilityStore } from '../stores/vulnerability'
 
@@ -207,6 +211,7 @@ const getStatusName = (status) => {
   const statusMap = {
     pending: '待处理',
     processing: '处理中',
+    returned: '已退回',
     resolved: '已修复',
     closed: '已关闭'
   }
@@ -217,6 +222,7 @@ const getStatusType = (status) => {
   const typeMap = {
     pending: 'info',
     processing: 'warning',
+    returned: 'danger',
     resolved: 'success',
     closed: 'info'
   }
@@ -231,6 +237,8 @@ const handleMenuSelect = (index) => {
     router.push('/submit')
   } else if (index === 'search') {
     router.push('/search')
+  } else if (index === 'myReturned') {
+    router.push('/my-returned')
   } else if (index === 'importCwe') {
     router.push('/import-cwe-json')
   }
